@@ -34,7 +34,7 @@ CONFIG_FILE=inventory/mycluster/hosts.yaml python3 contrib/inventory_builder/inv
 cat inventory/mycluster/group_vars/all/all.yml
 cat inventory/mycluster/group_vars/k8s_cluster/k8s-cluster.yml
 
-# Clean up old Kubernete cluster with Ansible Playbook - run the playbook as root
+# Clean up old Kubernetes cluster with Ansible Playbook - run the playbook as root
 # The option `--become` is required, as for example cleaning up SSL keys in /etc/,
 # uninstalling old packages and interacting with various systemd daemons.
 # Without --become the playbook will fail to run!
@@ -197,24 +197,24 @@ Note: Upstart/SysV init based OS types are not supported.
 
 ## Container Runtime Notes
 
-- Supported Docker versions are 18.09, 19.03, 20.10, 23.0 and 24.0. The *recommended* Docker version is 20.10 (except on Debian bookworm which without supporting for 20.10 and below any more). `Kubelet` might break on docker's non-standard version numbering (it no longer uses semantic versioning). To ensure auto-updates don't break your cluster look into e.g. the YUM  ``versionlock`` plugin or ``apt pin``).
-- The cri-o version should be aligned with the respective kubernetes version (i.e. kube_version=1.20.x, crio_version=1.20)
+- Supported Docker versions are 18.09, 19.03, 20.10, 23.0 and 24.0. The *recommended* Docker version is 20.10 (except on Debian bookworm which without supporting for 20.10 and below any more). `Kubelet` might break on docker's non-standard version numbering (it no longer uses semantic versioning). To ensure auto-updates don't break your cluster, look into e.g., the YUM  ``versionlock`` plugin or ``apt pin``).
+- The cri-o version should be aligned with the respective Kubernetes version (i.e., kube_version=1.20.x, crio_version=1.20)
 
 ## Requirements
 
 - **Minimum required version of Kubernetes is v1.25**
-- **Ansible v2.14+, Jinja 2.11+ and python-netaddr is installed on the machine that will run Ansible commands**
-- The target servers must have **access to the Internet** in order to pull docker images. Otherwise, additional configuration is required (See [Offline Environment](docs/offline-environment.md))
+- **Ansible v2.14+, Jinja 2.11+ and python-netaddr are installed on the machine that will run Ansible commands**
+- The target servers must have **access to the Internet** to pull docker images. Otherwise, additional configuration is required (See [Offline Environment](docs/offline-environment.md))
 - The target servers are configured to allow **IPv4 forwarding**.
 - If using IPv6 for pods and services, the target servers are configured to allow **IPv6 forwarding**.
-- The **firewalls are not managed**, you'll need to implement your own rules the way you used to.
-    in order to avoid any issue during deployment you should disable your firewall.
-- If kubespray is run from non-root user account, correct privilege escalation method
+- The **firewalls are not managed**; you'll need to implement your rules as you used to.
+    To avoid any issues during deployment, you should turn off your firewall.
+- If kubespray is run from a non-root user account, the correct privilege escalation method
     should be configured in the target servers. Then the `ansible_become` flag
     or command parameters `--become or -b` should be specified.
 
 Hardware:
-These limits are safeguarded by Kubespray. Actual requirements for your workload can differ. For a sizing guide go to the [Building Large Clusters](https://kubernetes.io/docs/setup/cluster-large/#size-of-master-and-master-components) guide.
+Kubespray safeguards these limits. Actual requirements for your workload can differ. For a sizing guide, go to the [Building Large Clusters](https://kubernetes.io/docs/setup/cluster-large/#size-of-master-and-master-components) guide.
 
 - Master
   - Memory: 1500 MB
@@ -223,7 +223,7 @@ These limits are safeguarded by Kubespray. Actual requirements for your workload
 
 ## Network Plugins
 
-You can choose among ten network plugins. (default: `calico`, except Vagrant uses `flannel`)
+You can choose among ten network plugins. (default: `calico,` except Vagrant uses `flannel`)
 
 - [flannel](docs/flannel.md): gre/vxlan (layer 2) networking.
 
@@ -232,7 +232,7 @@ You can choose among ten network plugins. (default: `calico`, except Vagrant use
     and overlay networks, with or without BGP. Calico uses the same engine to enforce network policy for hosts,
     pods, and (if using Istio and Envoy) applications at the service mesh layer.
 
-- [cilium](http://docs.cilium.io/en/latest/): layer 3/4 networking (as well as layer 7 to protect and secure application protocols), supports dynamic insertion of BPF bytecode into the Linux kernel to implement security services, networking and visibility logic.
+- [cilium](http://docs.cilium.io/en/latest/): layer 3/4 networking (as well as layer 7 to protect and secure application protocols) supports dynamic insertion of BPF bytecode into the Linux kernel to implement security services, networking, and visibility logic.
 
 - [weave](docs/weave.md): Weave is a lightweight container overlay network that doesn't require an external K/V database cluster.
     (Please refer to `weave` [troubleshooting documentation](https://www.weave.works/docs/net/latest/troubleshooting/)).
@@ -241,15 +241,15 @@ You can choose among ten network plugins. (default: `calico`, except Vagrant use
 
 - [kube-router](docs/kube-router.md): Kube-router is a L3 CNI for Kubernetes networking aiming to provide operational
     simplicity and high performance: it uses IPVS to provide Kube Services Proxy (if setup to replace kube-proxy),
-    iptables for network policies, and BGP for ods L3 networking (with optionally BGP peering with out-of-cluster BGP peers).
+    iptables for network policies and BGP for ods L3 networking (with optionally BGP peering with out-of-cluster BGP peers).
     It can also optionally advertise routes to Kubernetes cluster Pods CIDRs, ClusterIPs, ExternalIPs and LoadBalancerIPs.
 
-- [macvlan](docs/macvlan.md): Macvlan is a Linux network driver. Pods have their own unique Mac and Ip address, connected directly the physical (layer 2) network.
+- [macvlan](docs/macvlan.md): Macvlan is a Linux network driver. Pods have unique Mac and Ip addresses connected directly to the physical (layer 2) network.
 
-- [multus](docs/multus.md): Multus is a meta CNI plugin that provides multiple network interface support to pods. For each interface Multus delegates CNI calls to secondary CNI plugins such as Calico, macvlan, etc.
+- [multus](docs/multus.md): Multus is a meta CNI plugin that provides multiple network interface support to pods. Multus delegates CNI calls to secondary CNI plugins for each interface, such as Calico, macvlan, etc..
 
-- [custom_cni](roles/network-plugin/custom_cni/) : You can specify some manifests that will be applied to the clusters to bring you own CNI and use non-supported ones by Kubespray.
-  See `tests/files/custom_cni/README.md` and `tests/files/custom_cni/values.yaml`for an example with a CNI provided by a Helm Chart.
+- [custom_cni](roles/network-plugin/custom_cni/) : You can specify some manifests that will be applied to the clusters to bring your own CNI and use non-supported ones by Kubespray.
+  See `tests/files/custom_cni/README.md` and `tests/files/custom_cni/values. yaml'for an example with a CNI provided by a Helm Chart.
 
 The network plugin to use is defined by the variable `kube_network_plugin`. There is also an
 option to leverage built-in cloud provider networking instead.
@@ -280,4 +280,4 @@ See also [Network checker](docs/netcheck.md).
 
 CI/end-to-end tests sponsored by: [CNCF](https://cncf.io), [Equinix Metal](https://metal.equinix.com/), [OVHcloud](https://www.ovhcloud.com/), [ELASTX](https://elastx.se/).
 
-See the [test matrix](docs/test_cases.md) for details.
+For details, please take a look at the [test matrix](docs/test_cases.md).
